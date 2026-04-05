@@ -1,0 +1,10 @@
+{
+  "name": "improve",
+  "description": "Sistem geliştirme analisti. Video, makale, fikir — her içeriği claude-config sistemine uygulanabilir iyileştirmeye dönüştürür. Bilinen pattern'ları knowledge base'de saklar.",
+  "version": "1.0.0",
+  "platform": ["macos", "linux", "windows"],
+  "commands": [
+    {"name": "improve", "path": "commands/improve.md"},
+    {"name": "improve-watch", "path": "commands/improve-watch.md"}
+  ]
+}
