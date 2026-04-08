@@ -1,10 +1,12 @@
 {
   "name": "improve",
-  "description": "Sistem geliştirme analisti. Video, makale, fikir — her içeriği claude-config sistemine uygulanabilir iyileştirmeye dönüştürür. Bilinen pattern'ları knowledge base'de saklar.",
   "version": "1.0.0",
-  "platform": ["macos", "linux", "windows"],
-  "commands": [
-    {"name": "improve", "path": "commands/improve.md"},
-    {"name": "improve-watch", "path": "commands/improve-watch.md"}
-  ]
+  "description": "Analyzes videos, articles, and ideas — extracts actionable improvements for your claude-config setup.",
+  "author": {
+    "name": "Musab Kara",
+    "url": "https://github.com/SkyWalker2506"
+  },
+  "license": "MIT",
+  "category": "productivity",
+  "keywords": ["improve", "analyze", "video", "article", "claude-config"]
 }
