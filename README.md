@@ -16,9 +16,21 @@ Or via Claude Code native marketplace:
 claude plugin install improve@musabkara-claude-marketplace
 ```
 
+## Features
+
+- Analyze any content (text, URL, YouTube video, article) for system improvement opportunities
+- Categorize improvements: skill / agent / plugin / memory / config / workflow
+- Save approved patterns to a knowledge base
+- `/improve list` — browse and search saved patterns
+- Watch mode — monitor a directory for changes and get improvement prompts
+
 ## License
 
 MIT
+
+## CDS
+
+This plugin conforms to [Claude Design System v1.0](https://github.com/SkyWalker2506/claude-design-system).
 
 ## Part of
 

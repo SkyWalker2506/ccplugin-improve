@@ -1,0 +1,41 @@
+{
+  "cds_version": "1.0",
+  "name": "ccplugin-improve",
+  "type": "plugin",
+  "input_patterns": [
+    {
+      "type": "auto_trigger",
+      "keywords": [
+        "improve",
+        "refactor",
+        "optimize",
+        "iyilestir"
+      ],
+      "confirm": false,
+      "cooldown": 0
+    }
+  ],
+  "output_patterns": [
+    {
+      "type": "terminal_text",
+      "max_lines": 20
+    },
+    {
+      "type": "file_generation",
+      "path": "in-place code edits"
+    }
+  ],
+  "lifecycle": {
+    "preflight": {
+      "required_tools": [
+        "git"
+      ],
+      "required_secrets": [],
+      "required_mcp": []
+    }
+  },
+  "error_handling": {
+    "retry_network": false,
+    "max_retries": 0
+  }
+}
