@@ -1,29 +1,42 @@
 #!/bin/bash
-# Watch mode: belirtilen dizini izle, değişiklik olunca /improve tetikle
-# Kullanım: watch.sh [dizin] [saniye]
+# Watch mode: monitor directory for changes, trigger /improve on change
+# Usage: watch.sh [directory] [interval_seconds]
+set -euo pipefail
+
 WATCH_DIR="${1:-$(pwd)}"
 INTERVAL="${2:-30}"
 PLUGIN_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-STATE_FILE="/tmp/ccplugin-improve-watch.state"
+STATE_FILE="/tmp/ccplugin-improve-watch-$$.state"
+LOG_FILE="$PLUGIN_DIR/knowledge/watch-log.txt"
 
-echo "👁️  Watch mode başlatıldı: $WATCH_DIR (her ${INTERVAL}s)"
-echo "Durdurmak için Ctrl+C"
+# Cleanup state file on exit
+trap 'rm -f "$STATE_FILE"' EXIT
 
-# İlk snapshot
-find "$WATCH_DIR" -name "*.md" -o -name "*.sh" -o -name "*.json" 2>/dev/null | \
-  xargs ls -lt 2>/dev/null | awk '{print $6,$7,$8,$9}' > "$STATE_FILE"
+echo "Watch mode started: $WATCH_DIR (every ${INTERVAL}s)"
+echo "Press Ctrl+C to stop"
+
+# Compute checksum of tracked files (sorted, handles spaces in filenames)
+_checksum() {
+  find "$1" \( -name "*.md" -o -name "*.sh" -o -name "*.json" \) \
+    -not -path '*/.git/*' \
+    -exec stat -f "%m %N" {} \; 2>/dev/null | sort | md5
+}
+
+# Initial snapshot
+_checksum "$WATCH_DIR" > "$STATE_FILE"
 
 while true; do
   sleep "$INTERVAL"
-  NEW_STATE=$(find "$WATCH_DIR" -name "*.md" -o -name "*.sh" -o -name "*.json" 2>/dev/null | \
-    xargs ls -lt 2>/dev/null | awk '{print $6,$7,$8,$9}')
+  NEW_HASH=$(_checksum "$WATCH_DIR")
+  OLD_HASH=$(cat "$STATE_FILE")
 
-  if [ "$NEW_STATE" != "$(cat $STATE_FILE)" ]; then
-    CHANGED=$(diff <(cat "$STATE_FILE") <(echo "$NEW_STATE") | grep '^>' | awk '{print $NF}' | head -5)
+  if [ "$NEW_HASH" != "$OLD_HASH" ]; then
+    CHANGED=$(find "$WATCH_DIR" \( -name "*.md" -o -name "*.sh" -o -name "*.json" \) \
+      -not -path '*/.git/*' -newer "$STATE_FILE" 2>/dev/null | head -5 | tr '\n' ' ')
     echo ""
-    echo "🔄 Değişiklik algılandı: $CHANGED"
-    echo "$(date): $CHANGED" >> "$PLUGIN_DIR/knowledge/watch-log.txt"
-    echo "$NEW_STATE" > "$STATE_FILE"
-    echo "💡 /improve çalıştırarak analiz edebilirsin"
+    echo "Change detected: $CHANGED"
+    echo "$(date -u +%FT%TZ): $CHANGED" >> "$LOG_FILE"
+    echo "$NEW_HASH" > "$STATE_FILE"
+    echo "Run /improve to analyze the changes"
   fi
 done

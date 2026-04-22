@@ -1,5 +1,6 @@
 #!/bin/bash
 # Mevcut sistemin durumunu okur — /improve analizine context sağlar
+set -euo pipefail
 PLUGIN_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 CLAUDE_DIR="$HOME/.claude"
 
@@ -15,16 +16,23 @@ echo ""
 # Agents (active)
 echo "--- ACTIVE AGENTS ---"
 python3 -c "
-import json, os
-f = os.path.expanduser('~/.claude/config/agent-registry.json')
-if os.path.exists(f):
+import json, os, sys
+try:
+    f = os.path.expanduser('~/.claude/config/agent-registry.json')
+    if not os.path.exists(f):
+        print('(agent-registry.json not found)')
+        sys.exit(0)
     d = json.load(open(f))
     active = d.get('active_agents', [])
     agents = d.get('agents', {})
+    if not active:
+        print('(no active agents)')
     for id in active:
         a = agents.get(id, {})
         print(f'{id}: {a.get(\"name\",\"?\")} ({a.get(\"primary_model\",\"?\")}) — {\" \".join(a.get(\"capabilities\",[])[:3])}')
-" 2>/dev/null
+except Exception as e:
+    print(f'(error reading agent registry: {e})')
+" 2>/dev/null || echo "(python3 not available)"
 
 # Plugins
 echo ""
